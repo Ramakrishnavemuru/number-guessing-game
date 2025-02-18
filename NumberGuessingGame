@@ -1,0 +1,218 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class NumberGuessingGame extends JFrame {
+    private JLabel titleLabel, guessLabel, resultLabel, scoreLabel, gamesLabel, highScoreLabel, triesLabel;
+    private JTextField guessField;
+    private JButton startButton, enterButton, continueButton, backButton;
+    private JPanel titlePanel, guessPanel, resultPanel, scorePanel, buttonPanel;
+    private JComboBox<String> difficultyBox;
+    private int secretNumber, score, gamesPlayed, highScore, tries;
+    private int numberRange = 5; // Default range for easy mode
+
+    public NumberGuessingGame() {
+        setTitle("Number Guessing Game");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Set the overall background color for the frame
+        getContentPane().setBackground(new Color(0, 0, 0));
+
+        // Create components
+        titleLabel = new JLabel("Number Guessing Game");
+        guessLabel = new JLabel("Guess the Number between 1 and 5");
+        resultLabel = new JLabel("");
+        scoreLabel = new JLabel("Correct Guesses: 0");
+        gamesLabel = new JLabel("Games Played: 0");
+        highScoreLabel = new JLabel("High Score: 0");
+        triesLabel = new JLabel("Number of Tries: 0");
+        guessField = new JTextField(5);
+        startButton = new JButton("START");
+        enterButton = new JButton("Enter");
+        continueButton = new JButton("Continue Playing?");
+        backButton = new JButton("Back to Menu");
+
+        // Set button colors
+        startButton.setBackground(new Color(7, 154, 228));
+        startButton.setForeground(Color.WHITE);
+        enterButton.setBackground(new Color(20, 69, 53));
+        enterButton.setForeground(Color.WHITE);
+        continueButton.setBackground(new Color(255, 153, 51));
+        continueButton.setForeground(Color.WHITE);
+        backButton.setBackground(new Color(255, 102, 102));
+        backButton.setForeground(Color.WHITE);
+
+        // Set fonts
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        guessLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        resultLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        scoreLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gamesLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        highScoreLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        triesLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        guessField.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        // Difficulty selection
+        String[] difficulties = {"Easy", "Medium", "Hard"};
+        difficultyBox = new JComboBox<>(difficulties);
+        difficultyBox.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        // Set background colors for panels
+        titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        titlePanel.setBackground(new Color(0, 153, 255)); // Light Blue
+        guessPanel = new JPanel(new GridLayout(5, 1, 5, 5));  // Adjusted for spacing
+        guessPanel.setBackground(new Color(255, 255, 204)); // Light Yellow
+        resultPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        resultPanel.setBackground(new Color(240, 240, 240));
+        scorePanel = new JPanel(new GridLayout(4, 1, 5, 5));
+        scorePanel.setBackground(new Color(147, 59, 243)); // Light Green
+        buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(new Color(240, 240, 240));
+
+        // Create a border for the panels
+        guessPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        scorePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Add components to panels
+        titlePanel.add(titleLabel);
+        guessPanel.add(new JLabel("Select Difficulty:"));
+        guessPanel.add(difficultyBox);
+        guessPanel.add(guessLabel);
+        guessPanel.add(guessField);
+        resultPanel.add(resultLabel);
+        scorePanel.add(scoreLabel);
+        scorePanel.add(gamesLabel);
+        scorePanel.add(highScoreLabel);
+        scorePanel.add(triesLabel);
+        buttonPanel.add(startButton);
+        buttonPanel.add(enterButton);
+        buttonPanel.add(continueButton);
+        buttonPanel.add(backButton);
+
+        // Add panels to frame
+        add(titlePanel, BorderLayout.NORTH);
+        add(guessPanel, BorderLayout.CENTER);
+        add(resultPanel, BorderLayout.SOUTH);
+        add(scorePanel, BorderLayout.EAST);
+        add(buttonPanel, BorderLayout.WEST);
+
+        // Set initial values
+        score = 0;
+        gamesPlayed = 0;
+        highScore = 0;
+        tries = 0;
+        resultLabel.setVisible(false);
+        continueButton.setVisible(false);
+        backButton.setVisible(false);
+
+        // Add action listeners
+        startButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startGame();
+            }
+        });
+        enterButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checkGuess();
+            }
+        });
+        continueButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startGame();
+            }
+        });
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resetGame();
+            }
+        });
+
+        pack();
+        setVisible(true);
+    }
+
+    private void startGame() {
+        String difficulty = (String) difficultyBox.getSelectedItem();
+
+        switch (difficulty) {
+            case "Easy":
+                numberRange = 5;
+                break;
+            case "Medium":
+                numberRange = 15;
+                break;
+            case "Hard":
+                numberRange = 100;
+                break;
+        }
+
+        secretNumber = (int) (Math.random() * numberRange) + 1;
+        guessLabel.setText("Guess the Number between 1 and " + numberRange);
+        guessField.setText("");
+        resultLabel.setText("");
+        resultLabel.setVisible(false);
+        enterButton.setEnabled(true);
+        continueButton.setVisible(false);
+        backButton.setVisible(false);
+        gamesPlayed++;
+        gamesLabel.setText("Games Played: " + gamesPlayed);
+        tries = 0;
+        triesLabel.setText("Number of Tries: " + tries);
+    }
+
+    private void checkGuess() {
+        int guess;
+        try {
+            guess = Integer.parseInt(guessField.getText());
+        } catch (NumberFormatException e) {
+            resultLabel.setText("Please enter a valid number.");
+            resultLabel.setVisible(true);
+            return;
+        }
+
+        tries++;
+        triesLabel.setText("Number of Tries: " + tries);
+
+        if (guess == secretNumber) {
+            resultLabel.setText("Correct!");
+            score++;
+            scoreLabel.setText("Correct Guesses: " + score);
+            if (score > highScore) {
+                highScore = score;
+                highScoreLabel.setText("High Score: " + highScore);
+            }
+            enterButton.setEnabled(false);
+            continueButton.setVisible(true);
+            backButton.setVisible(true);
+        } else if (guess < secretNumber) {
+            resultLabel.setText("Too low!");
+        } else {
+            resultLabel.setText("Too high!");
+        }
+        resultLabel.setVisible(true);
+    }
+
+    private void resetGame() {
+        score = 0;
+        gamesPlayed = 0;
+        scoreLabel.setText("Correct Guesses: 0");
+        gamesLabel.setText("Games Played: 0");
+        highScoreLabel.setText("High Score: 0");
+        triesLabel.setText("Number of Tries: 0");
+        resultLabel.setText("");
+        resultLabel.setVisible(false);
+        continueButton.setVisible(false);
+        backButton.setVisible(false);
+        startButton.setEnabled(true);
+    }
+
+    public static void main(String[] args) {
+        new NumberGuessingGame();
+    }
+}
